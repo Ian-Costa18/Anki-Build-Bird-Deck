@@ -1,5 +1,11 @@
 # AviAnki
 
+[![PyPI](https://img.shields.io/pypi/v/avianki)](https://pypi.org/project/avianki/)
+[![Python](https://img.shields.io/pypi/pyversions/avianki)](https://pypi.org/project/avianki/)
+[![License](https://img.shields.io/github/license/Ian-Costa18/avianki)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/Ian-Costa18/avianki)](https://github.com/Ian-Costa18/avianki/stargazers)
+[![Ruff](https://img.shields.io/badge/linter-ruff-orange)](https://github.com/astral-sh/ruff)
+
 Builds Anki flashcard decks for learning to identify birds by sight and sound. Cards are sourced from [allaboutbirds.org](https://www.allaboutbirds.org) and include photos, call/song audio, and species descriptions.
 
 Each species generates two card types:

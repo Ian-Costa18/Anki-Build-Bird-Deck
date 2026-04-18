@@ -19,8 +19,14 @@ dependencies = [
 Repository = "https://github.com/Ian-Costa18/Anki-Build-Bird-Deck"
 Issues = "https://github.com/Ian-Costa18/Anki-Build-Bird-Deck/issues"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
 [dependency-groups]
 dev = [
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
     "ruff>=0.15.11",
     "ty>=0.0.31",
 ]

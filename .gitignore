@@ -9,6 +9,11 @@ birds.json
 .claude
 .vscode
 
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
 ### GENERATED ###
 # Python-generated files
 __pycache__/

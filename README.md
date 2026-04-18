@@ -78,19 +78,20 @@ uvx avianki US-MA-017   # county level
 
 ### Options
 
-| Flag                  | Description                                                    |
-| --------------------- | -------------------------------------------------------------- |
-| `--limit N`           | Cap the number of species (useful for testing)                 |
-| `--output FILE`       | Output `.apkg` path (default: auto-generated from location)    |
-| `--deck-name NAME`    | Override the deck name shown in Anki                           |
-| `--no-audio`          | Skip downloading call and song audio                           |
-| `--no-images`         | Skip downloading photos                                        |
-| `--delay SECONDS`     | Wait between requests in seconds (default: `0.5`)              |
-| `--media-dir DIR`     | Directory for cached media files (default: `media/`)           |
-| `--clear-cache`       | Delete previously downloaded media before running              |
-| `--log-file FILE`     | Log file path (default: `avianki.log`)                         |
-| `--verbose`           | Show debug-level output in the console                         |
-| `--quiet`             | Only show warnings and errors in the console                   |
+| Flag               | Description                                                         |
+| ------------------ | ------------------------------------------------------------------- |
+| `--limit N`        | Cap the number of species (useful for testing)                      |
+| `--output FILE`    | Output `.apkg` path (default: auto-generated from location)         |
+| `--deck-name NAME` | Override the deck name shown in Anki                                |
+| `--no-audio`       | Skip downloading call and song audio                                |
+| `--no-images`      | Skip downloading photos                                             |
+| `--delay SECONDS`  | Wait between requests in seconds (default: `0.5`)                   |
+| `--media-dir DIR`  | Directory for cached media files (default: `<install-root>/media/`) |
+| `--clear-cache`    | Delete previously downloaded media before running                   |
+| `--no-cache`       | Skip cache lookup; delete downloaded media after packaging          |
+| `--log-file FILE`  | Log file path (default: `avianki.log`)                              |
+| `--verbose`        | Show debug-level output in the console                              |
+| `--quiet`          | Only show warnings and errors in the console                        |
 
 ### Examples
 

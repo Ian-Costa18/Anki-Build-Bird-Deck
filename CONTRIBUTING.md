@@ -16,12 +16,15 @@
 ## Development workflow
 
 ```bash
-uv run avianki --help                  # verify the CLI works
-uv run avianki US-MA --limit 3        # quick smoke test (requires EBIRD_API_KEY)
-uv run pytest                          # run all tests
-uv run ruff check src/ tests/          # lint
-uv run ty check src/                   # type check
+uv run avianki --help                          # verify the CLI works
+uv run avianki US-MA --limit 3                # quick smoke test (requires EBIRD_API_KEY)
+uv run pytest                                             # run all tests
+uv run pytest --integration --cov=avianki --cov-report=html  # coverage including integration test with HTML report
+uv run ruff check src/ tests/                  # lint
+uv run ty check src/                           # type check
 ```
+
+The integration test runs the full pipeline against allaboutbirds.org and verifies the output deck; it is skipped by default. Pass `--integration` to opt in.
 
 ## Project structure
 
@@ -41,7 +44,7 @@ See [CLAUDE.md](CLAUDE.md) for a deeper walkthrough of the data flow and key con
 
 ## Scraping fragility
 
-All HTML parsing uses regex against allaboutbirds.org page structure. If scraping breaks, check whether the site's HTML has changed by comparing against the patterns in `allaboutbirds.py`.
+HTML parsing uses BeautifulSoup 4 with CSS selectors against allaboutbirds.org page structure; small regex expressions are used only on individual attribute values. If scraping breaks, check whether the site's HTML has changed by comparing against the selectors in `allaboutbirds.py`.
 
 ## Publishing to PyPI
 

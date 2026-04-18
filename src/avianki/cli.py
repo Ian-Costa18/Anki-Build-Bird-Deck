@@ -69,17 +69,18 @@ def _safe_name(com_name: str) -> str:
 
 
 def _get_audio(
-    sounds: dict, kind: str, safe: str, media_dir: Path
+    sounds: dict, kind: str, safe: str, media_dir: Path, no_cache: bool = False
 ) -> tuple[str, list[Path]]:
     """
     Download, trim, and cache one audio clip (call or song).
     Returns ([sound:file] field value, [absolute path]) tuple.
     """
     base = f"bird_{safe}_{kind}"
-    cached = media.find_cached_audio(media_dir, base)
-    if cached:
-        log.info("  ✓ %s (cached)", kind)
-        return f"[sound:{cached}]", [media_dir / cached]
+    if not no_cache:
+        cached = media.find_cached_audio(media_dir, base)
+        if cached:
+            log.info("  ✓ %s (cached)", kind)
+            return f"[sound:{cached}]", [media_dir / cached]
 
     urls = sounds.get(kind + "s", [])  # "calls" or "songs"
     if not urls:
@@ -100,7 +101,7 @@ def _get_audio(
 
 
 def _get_images(
-    img_urls: list[str], safe: str, media_dir: Path
+    img_urls: list[str], safe: str, media_dir: Path, no_cache: bool = False
 ) -> tuple[list[str], list[Path]]:
     """
     Download and cache up to 2 images.
@@ -112,7 +113,7 @@ def _get_images(
     for idx, img_url in enumerate(img_urls, 1):
         ext = Path(img_url.split("?")[0]).suffix.lower() or ".jpg"
         img_base = f"bird_{safe}_img{idx}"
-        cached = media.find_cached_image(media_dir, img_base)
+        cached = None if no_cache else media.find_cached_image(media_dir, img_base)
         if cached:
             log.info("  ✓ image %d (cached)", idx)
             img_fields.append(f'<img src="{cached}">')
@@ -167,11 +168,17 @@ def main() -> None:
     parser.add_argument(
         "--delay", type=float, default=0.5, help="Seconds to wait between requests (default: 0.5)"
     )
+    _default_media_dir = Path(__file__).resolve().parent.parent.parent / "media"
     parser.add_argument(
-        "--media-dir", default="media", help="Directory for cached media files (default: media)"
+        "--media-dir",
+        default=str(_default_media_dir),
+        help=f"Directory for cached media files (default: <install-root>/media)",
     )
     parser.add_argument(
         "--clear-cache", action="store_true", help="Delete cached media before running"
+    )
+    parser.add_argument(
+        "--no-cache", action="store_true", help="Skip cache lookup and delete downloaded media after packaging"
     )
     parser.add_argument(
         "--log-file", default="avianki.log", help="Log file path (default: avianki.log)"
@@ -244,7 +251,7 @@ def main() -> None:
             sci = overview.get("sciName", "")
 
         if not args.no_images:
-            img_fields, img_paths = _get_images(overview["images"], safe, media_dir)
+            img_fields, img_paths = _get_images(overview["images"], safe, media_dir, no_cache=args.no_cache)
             all_media.extend(img_paths)
         else:
             img_fields = ["", ""]
@@ -253,10 +260,10 @@ def main() -> None:
 
         if not args.no_audio:
             sounds = allaboutbirds.fetch_sounds(slug)
-            call_field, call_paths = _get_audio(sounds, "call", safe, media_dir)
+            call_field, call_paths = _get_audio(sounds, "call", safe, media_dir, no_cache=args.no_cache)
             all_media.extend(call_paths)
             time.sleep(args.delay)
-            song_field, song_paths = _get_audio(sounds, "song", safe, media_dir)
+            song_field, song_paths = _get_audio(sounds, "song", safe, media_dir, no_cache=args.no_cache)
             all_media.extend(song_paths)
             time.sleep(args.delay)
         else:
@@ -281,6 +288,10 @@ def main() -> None:
     pkg.media_files = [str(p) for p in all_media]
     output = args.output or f"Birds_{re.sub(r'[^A-Za-z0-9_-]', '_', deck_seed)}.apkg"
     pkg.write_to_file(output)
+
+    if args.no_cache:
+        for p in all_media:
+            p.unlink(missing_ok=True)
 
     log.info("✅  Saved → %s", output)
     log.info(

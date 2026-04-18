@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-import media
+from avianki import media
 
 
 def test_find_cached_returns_none_when_missing(tmp_media_dir):
@@ -39,7 +39,7 @@ def test_download_file_success(tmp_path):
     mock_resp.content = b"audio data"
     mock_resp.raise_for_status = MagicMock()
 
-    with patch("media.requests.get", return_value=mock_resp):
+    with patch("avianki.media.requests.get", return_value=mock_resp):
         result = media.download_file("http://example.com/file.mp3", dest)
 
     assert result is True
@@ -51,7 +51,7 @@ def test_download_file_returns_false_on_http_error(tmp_path):
     mock_resp = MagicMock()
     mock_resp.raise_for_status.side_effect = requests.HTTPError("404")
 
-    with patch("media.requests.get", return_value=mock_resp):
+    with patch("avianki.media.requests.get", return_value=mock_resp):
         result = media.download_file("http://example.com/file.mp3", dest)
 
     assert result is False
@@ -59,7 +59,7 @@ def test_download_file_returns_false_on_http_error(tmp_path):
 
 def test_download_file_returns_false_on_exception(tmp_path):
     dest = str(tmp_path / "file.mp3")
-    with patch("media.requests.get", side_effect=ConnectionError("no network")):
+    with patch("avianki.media.requests.get", side_effect=ConnectionError("no network")):
         result = media.download_file("http://example.com/file.mp3", dest)
 
     assert result is False
@@ -71,7 +71,7 @@ def test_trim_to_mp3_success(tmp_path):
     mock_result = MagicMock()
     mock_result.returncode = 0
 
-    with patch("media.subprocess.run", return_value=mock_result) as mock_run:
+    with patch("avianki.media.subprocess.run", return_value=mock_result) as mock_run:
         result = media.trim_to_mp3(src, dst)
 
     assert result is True
@@ -87,7 +87,7 @@ def test_trim_to_mp3_failure(tmp_path):
     mock_result = MagicMock()
     mock_result.returncode = 1
 
-    with patch("media.subprocess.run", return_value=mock_result):
+    with patch("avianki.media.subprocess.run", return_value=mock_result):
         result = media.trim_to_mp3(src, dst)
 
     assert result is False
@@ -97,7 +97,7 @@ def test_trim_to_mp3_timeout(tmp_path):
     src = str(tmp_path / "src.mp3")
     dst = str(tmp_path / "dst.mp3")
 
-    with patch("media.subprocess.run", side_effect=subprocess.TimeoutExpired("ffmpeg", 30)):
+    with patch("avianki.media.subprocess.run", side_effect=subprocess.TimeoutExpired("ffmpeg", 30)):
         result = media.trim_to_mp3(src, dst)
 
     assert result is False

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-build_bird_deck.py — CLI entry point.
+avianki.py — CLI entry point.
 
 Scrapes images, audio, and descriptions from allaboutbirds.org and packages
 everything into an Anki .apkg deck. Accepts three location formats:
 
 Usage:
-    python build_bird_deck.py "https://www.allaboutbirds.org/guide/browse/..."
-    python build_bird_deck.py ChIJGzE9DS1l44kRoOhiASS_fHg   # Google Place ID
-    python build_bird_deck.py US-MA                           # eBird region code
-    python build_bird_deck.py US-MA --limit 40
+    avianki "https://www.allaboutbirds.org/guide/browse/..."
+    avianki ChIJGzE9DS1l44kRoOhiASS_fHg   # Google Place ID
+    avianki US-MA                           # eBird region code
+    avianki US-MA --limit 40
 
 Output:
     Birds_<location>.apkg — import into Anki via File > Import
@@ -27,10 +27,10 @@ import time
 import genanki
 from dotenv import load_dotenv
 
-import allaboutbirds
-import anki_model
-import ebird
-import media
+from . import allaboutbirds
+from . import anki_model
+from . import ebird
+from . import media
 
 load_dotenv()
 
@@ -170,7 +170,7 @@ def main() -> None:
         "--clear-cache", action="store_true", help="Delete cached media before running"
     )
     parser.add_argument(
-        "--log-file", default="build_bird_deck.log", help="Log file path (default: build_bird_deck.log)"
+        "--log-file", default="avianki.log", help="Log file path (default: avianki.log)"
     )
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument("--verbose", action="store_true", help="Show debug output")

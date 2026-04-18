@@ -1,4 +1,4 @@
-# Anki Build Bird Deck
+# avianki
 
 Builds Anki flashcard decks for learning to identify birds by sight and sound. Cards are sourced from [allaboutbirds.org](https://www.allaboutbirds.org) and include photos, call/song audio, and species descriptions.
 
@@ -9,8 +9,7 @@ Each species generates two card types:
 
 ## Prerequisites
 
-- **Python 3.10+**
-- **[uv](https://docs.astral.sh/uv/)** — for dependency management
+- **[uv](https://docs.astral.sh/uv/)** — for running and installing
 - **[ffmpeg](https://ffmpeg.org/)** — for trimming audio clips
 
 Install ffmpeg:
@@ -23,12 +22,20 @@ winget install ffmpeg
 brew install ffmpeg
 ```
 
-## Installation
+## Usage
+
+**From PyPI (recommended):**
 
 ```bash
-git clone https://github.com/Ian-Costa18/Anki-Build-Bird-Deck.git
-cd merlin-anki
-uv sync
+uvx avianki LOCATION [OPTIONS]
+```
+
+**From a local clone:**
+
+```bash
+git clone https://github.com/Ian-Costa18/avianki.git
+cd avianki
+uv run avianki LOCATION [OPTIONS]
 ```
 
 ## Configuration
@@ -41,12 +48,6 @@ EBIRD_API_KEY=your_key_here
 
 An eBird API key is only required if using an eBird region code as the location. Get one free at [ebird.org/api/keygen](https://ebird.org/api/keygen).
 
-## Usage
-
-```bash
-uv run build_bird_deck.py LOCATION [OPTIONS]
-```
-
 ### Location formats
 
 **allaboutbirds.org browse URL** (recommended — species sorted by local frequency):
@@ -57,13 +58,13 @@ uv run build_bird_deck.py LOCATION [OPTIONS]
 4. Click **Browse**, then copy the URL from your browser's address bar
 
 ```bash
-uv run build_bird_deck.py "https://www.allaboutbirds.org/guide/browse/filter/loc/ChIJGzE9DS1l44kRoOhiASS_fHg/date/all/behavior/all/size/all/colors/all/sort/score/view/list-view"
+uvx avianki "https://www.allaboutbirds.org/guide/browse/filter/loc/ChIJGzE9DS1l44kRoOhiASS_fHg/date/all/behavior/all/size/all/colors/all/sort/score/view/list-view"
 ```
 
 **Google Place ID** (shorthand for the above):
 
 ```bash
-uv run build_bird_deck.py ChIJGzE9DS1l44kRoOhiASS_fHg
+uvx avianki ChIJGzE9DS1l44kRoOhiASS_fHg
 ```
 
 Find a Place ID at [developers.google.com/maps/documentation/javascript/examples/places-placeid-finder](https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder).
@@ -71,8 +72,8 @@ Find a Place ID at [developers.google.com/maps/documentation/javascript/examples
 **eBird region code** (species in taxonomic order, requires API key):
 
 ```bash
-uv run build_bird_deck.py US-MA
-uv run build_bird_deck.py US-MA-017   # county level
+uvx avianki US-MA
+uvx avianki US-MA-017   # county level
 ```
 
 ### Options
@@ -86,7 +87,7 @@ uv run build_bird_deck.py US-MA-017   # county level
 | `--no-images`         | Skip downloading photos                                        |
 | `--delay SECONDS`     | Wait between requests in seconds (default: `0.5`)              |
 | `--clear-cache`       | Delete previously downloaded media before running              |
-| `--log-file FILE`     | Log file path (default: `build_bird_deck.log`)                 |
+| `--log-file FILE`     | Log file path (default: `avianki.log`)                         |
 | `--verbose`           | Show debug-level output in the console                         |
 | `--quiet`             | Only show warnings and errors in the console                   |
 
@@ -94,22 +95,22 @@ uv run build_bird_deck.py US-MA-017   # county level
 
 ```bash
 # Build a deck for your area (recommended approach)
-uv run build_bird_deck.py "https://www.allaboutbirds.org/guide/browse/..." --limit 50
+uvx avianki "https://www.allaboutbirds.org/guide/browse/..." --limit 50
 
 # Re-download all media from scratch
-uv run build_bird_deck.py US-MA --clear-cache
+uvx avianki US-MA --clear-cache
 
 # Quick test with 5 species
-uv run build_bird_deck.py US-MA --limit 5
+uvx avianki US-MA --limit 5
 
 # Custom output path and deck name
-uv run build_bird_deck.py US-MA --output ~/Desktop/MyBirds.apkg --deck-name "My Birds"
+uvx avianki US-MA --output ~/Desktop/MyBirds.apkg --deck-name "My Birds"
 
 # Images only, no audio
-uv run build_bird_deck.py US-MA --no-audio
+uvx avianki US-MA --no-audio
 
 # Be polite to the server
-uv run build_bird_deck.py US-MA --delay 1.5
+uvx avianki US-MA --delay 1.5
 ```
 
 ## Output

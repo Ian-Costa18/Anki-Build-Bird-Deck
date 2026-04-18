@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 
-import allaboutbirds
+from avianki import allaboutbirds
 
 
 def _mock_response(text: str, status_code: int = 200) -> MagicMock:
@@ -31,27 +31,27 @@ BROWSE_HTML = """
 
 
 def test_fetch_browse_species_parses_slugs():
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(BROWSE_HTML)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(BROWSE_HTML)):
         result = allaboutbirds.fetch_browse_species("https://www.allaboutbirds.org/guide/browse/...")
     assert result == ["Black-capped_Chickadee", "American_Robin", "Song_Sparrow"]
 
 
 def test_fetch_browse_species_deduplicates():
     html = BROWSE_HTML + '<a href="/guide/American_Robin/overview">Robin again</a>'
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(html)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(html)):
         result = allaboutbirds.fetch_browse_species("https://example.com")
     assert result.count("American_Robin") == 1
 
 
 def test_fetch_browse_species_respects_limit():
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(BROWSE_HTML)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(BROWSE_HTML)):
         result = allaboutbirds.fetch_browse_species("https://example.com", limit=2)
     assert len(result) == 2
 
 
 def test_fetch_browse_species_constructs_url_from_place_id():
     place_id = "ChIJGzE9DS1l44kRoOhiASS_fHg"
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(BROWSE_HTML)) as mock_get:
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(BROWSE_HTML)) as mock_get:
         allaboutbirds.fetch_browse_species(place_id)
     called_url = mock_get.call_args[0][0]
     assert place_id in called_url
@@ -59,7 +59,7 @@ def test_fetch_browse_species_constructs_url_from_place_id():
 
 
 def test_fetch_browse_species_returns_empty_on_error():
-    with patch("allaboutbirds.requests.get", side_effect=ConnectionError("down")):
+    with patch("avianki.allaboutbirds.requests.get", side_effect=ConnectionError("down")):
         result = allaboutbirds.fetch_browse_species("https://example.com")
     assert result == []
 
@@ -73,7 +73,7 @@ NAMES_HTML = """
 
 
 def test_slug_to_names_parses_title_and_sci_name():
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(NAMES_HTML)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(NAMES_HTML)):
         result = allaboutbirds.slug_to_names("Black-capped_Chickadee")
     assert result["comName"] == "Black-capped Chickadee"
     assert result["sciName"] == "Poecile atricapillus"
@@ -81,7 +81,7 @@ def test_slug_to_names_parses_title_and_sci_name():
 
 def test_slug_to_names_fallback_on_missing_sci_name():
     html = "<title>American Robin Overview, All About Birds…</title>"
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(html)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(html)):
         result = allaboutbirds.slug_to_names("American_Robin")
     assert result["comName"] == "American Robin"
     assert result["sciName"] == ""
@@ -90,13 +90,13 @@ def test_slug_to_names_fallback_on_missing_sci_name():
 def test_slug_to_names_uses_itemprop_fallback():
     html = """<title>American Robin Overview, All About Birds…</title>
     <i itemprop="name">Turdus migratorius</i>"""
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(html)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(html)):
         result = allaboutbirds.slug_to_names("American_Robin")
     assert result["sciName"] == "Turdus migratorius"
 
 
 def test_slug_to_names_fallback_on_request_error():
-    with patch("allaboutbirds.requests.get", side_effect=ConnectionError("down")):
+    with patch("avianki.allaboutbirds.requests.get", side_effect=ConnectionError("down")):
         result = allaboutbirds.slug_to_names("American_Robin")
     assert result["comName"] == "American Robin"
     assert result["sciName"] == ""
@@ -113,19 +113,19 @@ OVERVIEW_HTML = """
 
 
 def test_fetch_overview_parses_description():
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(OVERVIEW_HTML)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(OVERVIEW_HTML)):
         result = allaboutbirds.fetch_overview("Black-capped_Chickadee")
     assert "Black-capped Chickadee" in result["desc"]
 
 
 def test_fetch_overview_parses_sci_name():
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(OVERVIEW_HTML)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(OVERVIEW_HTML)):
         result = allaboutbirds.fetch_overview("Black-capped_Chickadee")
     assert result["sciName"] == "Poecile atricapillus"
 
 
 def test_fetch_overview_constructs_720px_image_urls():
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(OVERVIEW_HTML)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(OVERVIEW_HTML)):
         result = allaboutbirds.fetch_overview("Black-capped_Chickadee")
     assert len(result["images"]) == 2
     assert all("720px" in url for url in result["images"])
@@ -136,13 +136,13 @@ def test_fetch_overview_uses_itemprop_fallback_for_sci_name():
 <meta name="description" content="A common backyard bird.">
 <i itemprop="name">Turdus migratorius</i>
 """
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(html)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(html)):
         result = allaboutbirds.fetch_overview("American_Robin")
     assert result["sciName"] == "Turdus migratorius"
 
 
 def test_fetch_overview_returns_empty_on_error():
-    with patch("allaboutbirds.requests.get", side_effect=ConnectionError("down")):
+    with patch("avianki.allaboutbirds.requests.get", side_effect=ConnectionError("down")):
         result = allaboutbirds.fetch_overview("Black-capped_Chickadee")
     assert result["desc"] == ""
     assert result["images"] == []
@@ -159,7 +159,7 @@ SOUNDS_HTML = """
 
 
 def test_fetch_sounds_separates_calls_and_songs():
-    with patch("allaboutbirds.requests.get", return_value=_mock_response(SOUNDS_HTML)):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response(SOUNDS_HTML)):
         result = allaboutbirds.fetch_sounds("Black-capped_Chickadee")
     assert len(result["calls"]) == 1
     assert len(result["songs"]) == 1
@@ -168,12 +168,12 @@ def test_fetch_sounds_separates_calls_and_songs():
 
 
 def test_fetch_sounds_empty_on_no_matches():
-    with patch("allaboutbirds.requests.get", return_value=_mock_response("<html></html>")):
+    with patch("avianki.allaboutbirds.requests.get", return_value=_mock_response("<html></html>")):
         result = allaboutbirds.fetch_sounds("Black-capped_Chickadee")
     assert result == {"calls": [], "songs": []}
 
 
 def test_fetch_sounds_returns_empty_on_error():
-    with patch("allaboutbirds.requests.get", side_effect=ConnectionError("down")):
+    with patch("avianki.allaboutbirds.requests.get", side_effect=ConnectionError("down")):
         result = allaboutbirds.fetch_sounds("Black-capped_Chickadee")
     assert result == {"calls": [], "songs": []}

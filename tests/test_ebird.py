@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, call, patch
 
-import ebird
+from avianki import ebird
 
 
 def _mock_json_response(data) -> MagicMock:
@@ -35,7 +35,7 @@ def test_fetch_species_returns_list(monkeypatch):
     codes_resp = _mock_json_response(["bkcchi", "amerob"])
     taxonomy_resp = _mock_json_response(TAXONOMY_DATA)
 
-    with patch("ebird.requests.get", side_effect=[codes_resp, taxonomy_resp]):
+    with patch("avianki.ebird.requests.get", side_effect=[codes_resp, taxonomy_resp]):
         result = ebird.fetch_species("US-MA")
 
     assert len(result) == 2
@@ -49,7 +49,7 @@ def test_fetch_species_respects_limit(monkeypatch):
     codes_resp = _mock_json_response(["bkcchi", "amerob"])
     taxonomy_resp = _mock_json_response(TAXONOMY_DATA[:1])
 
-    with patch("ebird.requests.get", side_effect=[codes_resp, taxonomy_resp]):
+    with patch("avianki.ebird.requests.get", side_effect=[codes_resp, taxonomy_resp]):
         result = ebird.fetch_species("US-MA", limit=1)
 
     assert len(result) == 1
@@ -66,7 +66,7 @@ def test_fetch_species_batches_large_lists(monkeypatch):
     tax_resp1 = _mock_json_response(taxonomy_batch1)
     tax_resp2 = _mock_json_response(taxonomy_batch2)
 
-    with patch("ebird.requests.get", side_effect=[codes_resp, tax_resp1, tax_resp2]) as mock_get:
+    with patch("avianki.ebird.requests.get", side_effect=[codes_resp, tax_resp1, tax_resp2]) as mock_get:
         result = ebird.fetch_species("US-MA")
 
     assert mock_get.call_count == 3  # 1 species list + 2 taxonomy batches

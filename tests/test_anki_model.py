@@ -1,4 +1,4 @@
-import anki_model
+from avianki import anki_model
 
 
 def test_stable_id_is_deterministic():

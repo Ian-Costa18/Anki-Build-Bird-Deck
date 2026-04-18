@@ -117,7 +117,7 @@ uvx avianki US-MA --delay 1.5
 
 ## Output
 
-An `.apkg` file is written to the current directory (e.g. `Birds_US_MA.apkg`). Import it into Anki via **File → Import**.
+An `.apkg` file is written to the current directory (e.g. `Birds_US-MA.apkg`). Import it into Anki via **File -> Import**.
 
 Downloaded images and audio are cached in `media/` (or the directory set by `--media-dir`) so re-runs skip already-fetched files.
 

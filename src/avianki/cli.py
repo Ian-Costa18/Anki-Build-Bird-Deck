@@ -204,7 +204,8 @@ def main() -> None:
         slugs = allaboutbirds.fetch_browse_species(location, limit=args.limit)
         names = {}  # resolved lazily from each overview page
         deck_name = args.deck_name or "Birds – Local"
-        deck_seed = location
+        place_id_match = re.search(r"/loc/([^/]+)", location)
+        deck_seed = place_id_match.group(1) if place_id_match else location
 
     if not slugs:
         log.error("No species found for: %s", location)
@@ -274,7 +275,7 @@ def main() -> None:
 
     pkg = genanki.Package(deck)
     pkg.media_files = all_media
-    output = args.output or f"Birds_{re.sub(r'[^A-Za-z0-9]', '_', deck_seed[:30])}.apkg"
+    output = args.output or f"Birds_{re.sub(r'[^A-Za-z0-9_-]', '_', deck_seed)}.apkg"
     pkg.write_to_file(output)
 
     log.info("✅  Saved → %s", output)

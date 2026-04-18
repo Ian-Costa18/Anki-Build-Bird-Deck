@@ -89,7 +89,7 @@ uvx avianki US-MA-017   # county level
 | `--media-dir DIR`  | Directory for cached media files (default: `<install-root>/media/`) |
 | `--clear-cache`    | Delete previously downloaded media before running                   |
 | `--no-cache`       | Skip cache lookup; delete downloaded media after packaging          |
-| `--log-file FILE`  | Log file path (default: `avianki.log`)                              |
+| `--log-file FILE`  | Log file path (default: next to `--media-dir`, as `avianki.log`)    |
 | `--verbose`        | Show debug-level output in the console                              |
 | `--quiet`          | Only show warnings and errors in the console                        |
 

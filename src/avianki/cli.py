@@ -28,10 +28,7 @@ from pathlib import Path
 import genanki
 from dotenv import load_dotenv
 
-from . import allaboutbirds
-from . import anki_model
-from . import ebird
-from . import media
+from . import allaboutbirds, anki_model, ebird, media
 
 load_dotenv()
 
@@ -166,7 +163,10 @@ def main() -> None:
         "--no-images", action="store_true", help="Skip downloading images"
     )
     parser.add_argument(
-        "--delay", type=float, default=0.5, help="Seconds to wait between requests (default: 0.5)"
+        "--delay",
+        type=float,
+        default=0.5,
+        help="Seconds to wait between requests (default: 0.5)",
     )
     _default_media_dir = Path(__file__).resolve().parent.parent.parent / "media"
     parser.add_argument(
@@ -178,17 +178,21 @@ def main() -> None:
         "--clear-cache", action="store_true", help="Delete cached media before running"
     )
     parser.add_argument(
-        "--no-cache", action="store_true", help="Skip cache lookup and delete downloaded media after packaging"
+        "--no-cache",
+        action="store_true",
+        help="Skip cache lookup and delete downloaded media after packaging",
     )
     parser.add_argument(
-        "--log-file", default="avianki.log", help="Log file path (default: avianki.log)"
+        "--log-file",
+        default=None,
+        help="Log file path (default: next to <media-dir> as avianki.log)",
     )
     verbosity = parser.add_mutually_exclusive_group()
     verbosity.add_argument("--verbose", action="store_true", help="Show debug output")
-    verbosity.add_argument("--quiet", action="store_true", help="Only show warnings and errors")
+    verbosity.add_argument(
+        "--quiet", action="store_true", help="Only show warnings and errors"
+    )
     args = parser.parse_args()
-
-    fh = _setup_logging(args.log_file, args.verbose, args.quiet)
 
     location = args.location
     media_dir = Path(args.media_dir)
@@ -197,6 +201,11 @@ def main() -> None:
     if args.clear_cache:
         shutil.rmtree(media_dir)
         media_dir.mkdir()
+
+    log_file = args.log_file or str(media_dir.parent / "avianki.log")
+    fh = _setup_logging(log_file, args.verbose, args.quiet)
+
+    if args.clear_cache:
         log.info("Media cache cleared.")
 
     # Determine species source: allaboutbirds URL/place ID, or eBird region code
@@ -251,7 +260,9 @@ def main() -> None:
             sci = overview.get("sciName", "")
 
         if not args.no_images:
-            img_fields, img_paths = _get_images(overview["images"], safe, media_dir, no_cache=args.no_cache)
+            img_fields, img_paths = _get_images(
+                overview["images"], safe, media_dir, no_cache=args.no_cache
+            )
             all_media.extend(img_paths)
         else:
             img_fields = ["", ""]
@@ -260,10 +271,14 @@ def main() -> None:
 
         if not args.no_audio:
             sounds = allaboutbirds.fetch_sounds(slug)
-            call_field, call_paths = _get_audio(sounds, "call", safe, media_dir, no_cache=args.no_cache)
+            call_field, call_paths = _get_audio(
+                sounds, "call", safe, media_dir, no_cache=args.no_cache
+            )
             all_media.extend(call_paths)
             time.sleep(args.delay)
-            song_field, song_paths = _get_audio(sounds, "song", safe, media_dir, no_cache=args.no_cache)
+            song_field, song_paths = _get_audio(
+                sounds, "song", safe, media_dir, no_cache=args.no_cache
+            )
             all_media.extend(song_paths)
             time.sleep(args.delay)
         else:

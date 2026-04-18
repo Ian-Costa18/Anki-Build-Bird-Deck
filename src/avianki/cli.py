@@ -22,6 +22,7 @@ import os
 import re
 import shutil
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -43,6 +44,7 @@ _sh = logging.StreamHandler(sys.stdout)
 _sh.setFormatter(_fmt)
 _sh.setLevel(logging.INFO)
 log.addHandler(_sh)
+
 
 
 def _setup_logging(log_file: str, verbose: bool, quiet: bool) -> logging.FileHandler:
@@ -168,11 +170,10 @@ def main() -> None:
         default=0.5,
         help="Seconds to wait between requests (default: 0.5)",
     )
-    _default_media_dir = Path(__file__).resolve().parent.parent.parent / "media"
     parser.add_argument(
         "--media-dir",
-        default=str(_default_media_dir),
-        help=f"Directory for cached media files (default: <install-root>/media)",
+        default=str(Path(tempfile.gettempdir()) / "avianki" / "media"),
+        help="Directory for cached media files (default: <tmp>/avianki)",
     )
     parser.add_argument(
         "--clear-cache", action="store_true", help="Delete cached media before running"
@@ -202,8 +203,9 @@ def main() -> None:
         shutil.rmtree(media_dir)
         media_dir.mkdir()
 
-    log_file = args.log_file or str(media_dir.parent / "avianki.log")
-    fh = _setup_logging(log_file, args.verbose, args.quiet)
+    log_file = Path(args.log_file) if args.log_file else Path(tempfile.gettempdir()) / "avianki" / "avianki.log"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    fh = _setup_logging(str(log_file), args.verbose, args.quiet)
 
     if args.clear_cache:
         log.info("Media cache cleared.")

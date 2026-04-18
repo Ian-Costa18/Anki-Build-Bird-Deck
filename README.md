@@ -80,16 +80,16 @@ uvx avianki US-MA-017   # county level
 
 | Flag               | Description                                                         |
 | ------------------ | ------------------------------------------------------------------- |
-| `--limit N`        | Cap the number of species (useful for testing)                      |
+| `--limit N`        | Cap the number of species included in the deck                      |
 | `--output FILE`    | Output `.apkg` path (default: auto-generated from location)         |
 | `--deck-name NAME` | Override the deck name shown in Anki                                |
 | `--no-audio`       | Skip downloading call and song audio                                |
 | `--no-images`      | Skip downloading photos                                             |
 | `--delay SECONDS`  | Wait between requests in seconds (default: `0.5`)                   |
-| `--media-dir DIR`  | Directory for cached media files (default: `<install-root>/media/`) |
+| `--media-dir DIR`  | Directory for cached media files (default: `<tmp>/avianki/media/`)  |
 | `--clear-cache`    | Delete previously downloaded media before running                   |
 | `--no-cache`       | Skip cache lookup; delete downloaded media after packaging          |
-| `--log-file FILE`  | Log file path (default: next to `--media-dir`, as `avianki.log`)    |
+| `--log-file FILE`  | Log file path (default: `<tmp>/avianki/avianki.log`)                |
 | `--verbose`        | Show debug-level output in the console                              |
 | `--quiet`          | Only show warnings and errors in the console                        |
 
@@ -119,7 +119,7 @@ uvx avianki US-MA --delay 1.5
 
 An `.apkg` file is written to the current directory (e.g. `Birds_US-MA.apkg`). Import it into Anki via **File -> Import**.
 
-Downloaded images and audio are cached in `media/` (or the directory set by `--media-dir`) so re-runs skip already-fetched files.
+Downloaded images and audio are cached in the system temp directory (`<tmp>/avianki/media/` by default, or the directory set by `--media-dir`) so re-runs skip already-fetched files. The log is written to `<tmp>/avianki/avianki.log`.
 
 ## Notes
 

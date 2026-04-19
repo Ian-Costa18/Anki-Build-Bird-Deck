@@ -53,7 +53,7 @@ Publishing is automated via GitHub Actions and triggers on a version tag push. T
    git add pyproject.toml uv.lock
    git commit -m "Bump version to $(uv version --short)"
    git tag v$(uv version --short)
-   git push --follow-tags
+   git push && git push origin v$(uv version --short)
    ```
 
 Pushing the tag triggers the [publish workflow](../.github/workflows/publish.yml), which builds the package and publishes it to PyPI using OIDC trusted publishing — no token needed.

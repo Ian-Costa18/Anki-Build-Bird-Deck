@@ -16,13 +16,15 @@
 ## Development workflow
 
 ```bash
-uv run avianki --help                          # verify the CLI works
-uv run avianki US-MA --limit 3                # quick smoke test (requires EBIRD_API_KEY)
-uv run pytest                                             # run all tests
-uv run pytest --integration --cov=avianki --cov-report=html  # coverage including integration test with HTML report
-uv run python scripts/gen_previews.py          # regenerate examples/ card previews (needs network; media cached by integration test)
 uv run ruff check src/ tests/                  # lint
 uv run ty check src/                           # type check
+uv run pytest                                             # run all tests
+uv run pytest --integration --cov=avianki --cov-report=html  # run all tests, including the integration test, and coverage with HTML report
+uv run python scripts/gen_previews.py          # regenerate examples/ card previews (needs network; media cached by integration test)
+# If publishing to PyPi:
+uv version --bump patch   # or minor / major
+uv build
+uv run dotenv run -- uv publish
 ```
 
 The integration test runs the full pipeline against allaboutbirds.org and verifies the output deck; it is skipped by default. Pass `--integration` to opt in.

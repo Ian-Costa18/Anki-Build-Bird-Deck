@@ -52,6 +52,16 @@ The app has a single pipeline: **resolve species list → scrape media per speci
 
 **Logging:** A single `logging.Logger("bird_deck")` is used across all modules. `cli.py` configures its handlers (stdout + file). Other modules just call `log = logging.getLogger("bird_deck")`.
 
+## After major changes
+
+Run these three checks before considering work done:
+
+```bash
+uv run pytest
+uv run ruff check src/ tests/
+uv run ty check src/
+```
+
 ## Coding conventions
 
 - **Use `pathlib.Path` for all filesystem operations** — never `os.path`, `os.getcwd()`, `os.makedirs()`, etc. `Path` covers everything and is already used throughout the codebase.

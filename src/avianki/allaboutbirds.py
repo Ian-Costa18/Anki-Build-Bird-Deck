@@ -65,7 +65,7 @@ def fetch_browse_species(url_or_place_id: str, limit: int | None = None) -> list
         slugs = list(dict.fromkeys(
             m.group(1)
             for a in soup.find_all("a", href=re.compile(r"/guide/[A-Za-z][A-Za-z_-]+/overview"))
-            for m in [re.search(r"/guide/([A-Za-z][A-Za-z_\-]+)/overview", a["href"])]
+            for m in [re.search(r"/guide/([A-Za-z][A-Za-z_\-]+)/overview", str(a["href"]))]
             if m
         ))
         if limit:
@@ -117,7 +117,7 @@ def fetch_overview(slug: str) -> dict:
         soup = _get(url)
 
         meta = soup.find("meta", attrs={"name": "description"})
-        desc = html_mod.unescape(meta["content"]).strip() if meta else ""
+        desc = html_mod.unescape(str(meta["content"])).strip() if meta else ""
         desc = re.sub(r"^<p>|</p>$", "", desc).strip()
 
         sci_name = _extract_sci_name(soup, slug, "fetch_overview")
@@ -128,7 +128,7 @@ def fetch_overview(slug: str) -> dict:
             for a in soup.find_all("a", href=re.compile(r"/photo-gallery/"))
             for img in [a.find("img", attrs={"data-interchange": True})]
             if img
-            for m in [re.search(r"/photo/(\d+)-\d+px\.jpg", img["data-interchange"])]
+            for m in [re.search(r"/photo/(\d+)-\d+px\.jpg", str(img["data-interchange"]))]
             if m
         ))
         images = [f"{AAB_BASE}/assets/photo/{pid}-720px.jpg" for pid in photo_ids[:2]]
@@ -159,7 +159,7 @@ def fetch_sounds(slug: str) -> dict:
         calls, songs = [], []
         for player, container in zip(players, containers):
             mp3_url = player.get("name", "")
-            label = container.get("aria-label", "")
+            label = str(container.get("aria-label", ""))
             if not mp3_url:
                 continue
             if "Call" in label:

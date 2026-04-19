@@ -1,4 +1,4 @@
-# Contributing to avianki
+# Contributing to AviAnki
 
 ## Setup
 
@@ -47,19 +47,13 @@ Publishing is automated via GitHub Actions and triggers on a version tag push. T
    uv version --bump patch   # or minor / major
    ```
 
-2. Commit and push the version bump:
+2. Commit, tag, and push:
 
    ```bash
    git add pyproject.toml uv.lock
    git commit -m "Bump version to $(uv version --short)"
-   git push
-   ```
-
-3. Tag the commit and push the tag:
-
-   ```bash
    git tag v$(uv version --short)
-   git push origin v$(uv version --short)
+   git push --follow-tags
    ```
 
 Pushing the tag triggers the [publish workflow](../.github/workflows/publish.yml), which builds the package and publishes it to PyPI using OIDC trusted publishing — no token needed.

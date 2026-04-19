@@ -11,7 +11,17 @@
    uv sync --group dev
    ```
 
-3. Copy `.env.example` to `.env` and add your eBird API key (only needed for eBird region code input)
+3. Copy `.env.example` to `.env` and add your eBird API key (`EBIRD_API_KEY`) if you plan to test eBird region code input
+
+## Quick verification checklist
+
+Run these before opening a PR:
+
+```bash
+uv run pytest
+uv run ruff check src/ tests/
+uv run ty check src/
+```
 
 ## Development workflow
 
@@ -28,6 +38,8 @@ uv run dotenv run -- uv publish
 
 The integration test runs the full pipeline against allaboutbirds.org and verifies the output deck; it is skipped by default. Pass `--integration` to opt in.
 
+Use `--integration` only when you intentionally want a networked end-to-end run.
+
 ## Project structure
 
 - `src/avianki/cli.py` — CLI entry point and full pipeline orchestration
@@ -38,11 +50,28 @@ The integration test runs the full pipeline against allaboutbirds.org and verifi
 
 See [CLAUDE.md](CLAUDE.md) for a deeper walkthrough of the data flow and key constraints.
 
-## Adding a new location input format
+## Extending cards and scraped data
 
-1. Add detection logic in `cli.main()` alongside the existing eBird/AAB checks
-2. Produce a `slugs: list[str]` of allaboutbirds.org species slugs and a `deck_seed: str` (used to generate a stable deck ID)
-3. Optionally populate `names: dict` mapping slug → `{comName, sciName}` to skip per-slug overview fetches
+Most feature work falls into one of these two paths.
+
+### 1) Edit Anki cards (layout, templates, fields)
+
+- Update `src/avianki/anki_model.py` for model fields, card templates, and CSS.
+- Keep field order aligned with how notes are constructed in `src/avianki/cli.py` (`genanki.Note(fields=[...])`).
+- If you add, remove, or rename fields, update both files in the same PR so generated notes still match the model.
+- Update tests in `tests/test_anki_model.py` (and any affected CLI tests) to reflect the new field/template behavior.
+
+### 2) Scrape additional fields from allaboutbirds.org
+
+- Add extraction logic in `src/avianki/allaboutbirds.py` using BeautifulSoup selectors.
+- Prefer selectors against structured HTML; avoid whole-page regex parsing.
+- Thread the new data through `src/avianki/cli.py` so it reaches:
+  - note fields (if shown on cards)
+  - `birds.json` output
+- Add or update fixture-based parser tests in `tests/test_allaboutbirds.py` and related fixtures in `tests/fixtures/`.
+- If output JSON shape changes, update `examples/example-birds.json` and any tests that assert JSON structure.
+
+For either path, run the quick verification checklist before opening a PR.
 
 ## Scraping fragility
 
@@ -62,6 +91,11 @@ uv run dotenv run -- uv publish
 
 ## Submitting changes
 
-- Run `uv run pytest` and `uv run ruff check src/ tests/` before opening a PR
+- Run `uv run pytest`, `uv run ruff check src/ tests/`, and `uv run ty check src/` before opening a PR
 - Keep PRs focused — one feature or fix per PR
 - Open an issue first for significant changes
+
+## Notes for CLI changes
+
+- If CLI flags or defaults change, update `README.md` in the same PR (options table and examples).
+- Prefer `pathlib.Path` for filesystem code; avoid introducing `os.path` paths in new code.

@@ -172,7 +172,15 @@ A `birds.json` file is also written to `<work-dir>/birds.json` (override with `-
 - Audio clips are trimmed to 10 seconds via ffmpeg to keep file sizes small.
 - allaboutbirds.org browse URLs sort species by likelihood score for your location, which gives much better study order than eBird's taxonomic ordering.
 
-## Future Ideas
+## Thanks to Cornell Lab of Ornithology
+
+All bird data, photos, audio, and descriptions in AviAnki come from [All About Birds](https://www.allaboutbirds.org), a free resource built and maintained by the [Cornell Lab of Ornithology](https://www.birds.cornell.edu). Their work makes tools like this possible.
+
+**Get involved** — Cornell Lab runs some of the world's largest citizen science programs. You can contribute bird sightings through [eBird](https://ebird.org), join community science projects like [Project FeederWatch](https://feederwatch.org) and [NestWatch](https://nestwatch.org), or participate in the annual [Christmas Bird Count](https://www.audubon.org/conservation/christmas-bird-count). Every observation helps researchers track bird populations and protect habitat. Learn more at [allaboutbirds.org/news/get-involved](https://www.allaboutbirds.org/news/get-involved/).
+
+**Donate** — If you find All About Birds useful, consider supporting the Cornell Lab directly: [give.birds.cornell.edu](https://give.birds.cornell.edu/page/87895/donate/1).
+
+## Future Development
 
 - More card types, with options to choose which types the user wants, such as
   - Identification with only song, call, description, image, etc.
@@ -182,3 +190,5 @@ A `birds.json` file is also written to `<work-dir>/birds.json` (override with `-
   - Identification with [Scientific Name, Order, and Family](https://www.allaboutbirds.org/guide/American_Robin/overview#Cool%20Facts:~:text=Turdus,Turdidae).
   - Identification with [Other Names](https://www.allaboutbirds.org/guide/American_Robin/overview#Cool%20Facts:~:text=Other%20Names).
 - [Cool Facts](https://www.allaboutbirds.org/guide/American_Robin/overview#Cool%20Facts:~:text=An,old,-%2E), [ID info](https://www.allaboutbirds.org/guide/American_Robin/id), [Life History](https://www.allaboutbirds.org/guide/American_Robin/lifehistory), [Range Map](https://www.allaboutbirds.org/guide/American_Robin/maps-range), and other fields added to card in some way, without overloading the card.
+
+If you find AviAnki useful, consider supporting its development at [buymeacoffee.com/IanCosta](https://buymeacoffee.com/IanCosta).

@@ -1,4 +1,4 @@
-"""Media download, caching, and audio trimming."""
+"""Media download, caching, and ffmpeg audio trimming."""
 
 import logging
 from pathlib import Path

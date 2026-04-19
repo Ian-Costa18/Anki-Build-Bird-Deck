@@ -1,12 +1,20 @@
 ### CUSTOM ###
 
-media
-tests/tmp/
-tests/media/
+# Secrets
 .env
+
+# Working files
+media/
+.ephemeral/
 *.apkg*
 *.log
+birds.json
 
+# Test related
+tests/tmp/
+tests/media/
+
+# Developer
 .claude
 .vscode/*
 !.vscode/settings.json

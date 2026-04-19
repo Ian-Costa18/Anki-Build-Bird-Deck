@@ -107,21 +107,22 @@ EBIRD_API_KEY=your_key_here
 
 ### Options
 
-| Flag              | Short | Description                                                     |
-| ----------------- | ----- | --------------------------------------------------------------- |
-| `--limit N`       | `-n`  | Cap the number of species included in the deck                  |
-| `--output FILE`   | `-o`  | Output `.apkg` path (default: auto-generated from location)     |
-| `--deck-name NAME`| `-d`  | Override the deck name shown in Anki                            |
-| `--no-audio`      | `-A`  | Skip downloading call and song audio                            |
-| `--no-images`     | `-I`  | Skip downloading photos                                         |
-| `--delay SECONDS` | `-D`  | Wait between requests in seconds (default: `0.5`)               |
-| `--work-dir DIR`  | `-w`  | Directory for cached media and logs (default: `<tmp>/avianki/`) |
-| `--media-dir DIR` | `-m`  | Override media subdirectory (default: `<work-dir>/media/`)      |
-| `--ephemeral`     | `-e`  | Use a temporary work dir and delete everything after packaging  |
-| `--no-cache`      | `-X`  | Skip cache lookup; delete downloaded media after packaging      |
-| `--log-file FILE` | `-l`  | Log file path (default: `<work-dir>/avianki.log`)               |
-| `--verbose`       | `-v`  | Show debug-level output in the console                          |
-| `--quiet`         | `-q`  | Only show warnings and errors in the console                    |
+| Flag              | Short | Description                                                                  |
+| ----------------- | ----- | ---------------------------------------------------------------------------- |
+| `--limit N`       | `-n`  | Cap the number of species included in the deck                               |
+| `--output FILE`   | `-o`  | Output `.apkg` path (default: auto-generated from location)                  |
+| `--deck-name NAME`| `-d`  | Override the deck name shown in Anki                                         |
+| `--no-audio`      | `-A`  | Skip downloading call and song audio                                         |
+| `--no-images`     | `-I`  | Skip downloading photos                                                      |
+| `--delay SECONDS` | `-D`  | Wait between requests in seconds (default: `0.5`)                            |
+| `--work-dir DIR`  | `-w`  | Directory for cached media, logs, and JSON (default: `<tmp>/avianki/`)       |
+| `--media-dir DIR` | `-m`  | Override media subdirectory (default: `<work-dir>/media/`)                   |
+| `--json-file FILE`| `-j`  | Path for `birds.json` output (default: `<work-dir>/birds.json`)              |
+| `--ephemeral`     | `-e`  | Run without persisting anything — see [Ephemeral mode](#ephemeral-mode)      |
+| `--no-cache`      | `-X`  | Skip cache lookup; delete downloaded media after packaging                   |
+| `--log-file FILE` | `-l`  | Log file path (default: `<work-dir>/avianki.log`)                            |
+| `--verbose`       | `-v`  | Show debug-level output in the console                                       |
+| `--quiet`         | `-q`  | Only show warnings and errors in the console                                 |
 
 ### Examples
 
@@ -141,9 +142,28 @@ uvx avianki "https://www.allaboutbirds.org/guide/browse/..." --delay 1.5
 
 ## Output
 
-An `.apkg` file is written to the current directory (e.g. `Birds_US-MA.apkg`). Import it into Anki via **File → Import**.
+An `.apkg` file is written to the current directory (e.g. `Birds_ChIJGzE9DS1l44kRoOhiASS_fHg.apkg` or `Birds_US-MA.apkg`). Import it into Anki via **File → Import**.
 
 Downloaded images and audio are cached in the system temp directory (`<tmp>/avianki/media/` by default, or the directory set by `--media-dir`) so re-runs skip already-fetched files. Re-running the same location only fetches new or missing media. The log is written to `<tmp>/avianki/avianki.log`.
+
+A `birds.json` file is also written to `<work-dir>/birds.json` (override with `--json-file`) containing the scraped data for every species. Each entry has the common name, scientific name, description, and paths to the cached image and audio files relative to `<work-dir>`. Audio fields are `null` when no clip was found. See [examples/example-birds.json](examples/example-birds.json) for a sample.
+
+```json
+[
+  {
+    "name": "American Robin",
+    "sci_name": "Turdus migratorius",
+    "description": "The quintessential early bird...",
+    "images": ["media/bird_American_Robin_img1.jpg", "media/bird_American_Robin_img2.jpg"],
+    "call": "media/bird_American_Robin_call.mp3",
+    "song": "media/bird_American_Robin_song.mp3"
+  }
+]
+```
+
+## Ephemeral mode
+
+`--ephemeral` is for one-shot runs where you want no persistent files. Instead of writing to `<work-dir>` directly, all temporary files (media, log, `birds.json`) go into `<work-dir>/.ephemeral/`. That subdirectory is deleted after the `.apkg` is packaged, leaving the base work directory untouched. The cache is never read or written in this mode.
 
 ## Notes
 

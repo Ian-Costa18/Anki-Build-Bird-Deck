@@ -17,6 +17,7 @@ Output:
 
 import argparse
 import hashlib
+import json
 import logging
 import os
 import re
@@ -167,6 +168,11 @@ def main() -> None:
         "-I", "--no-images", action="store_true", help="Skip downloading images"
     )
     parser.add_argument(
+        "-j", "--json-file",
+        default=None,
+        help="Path for birds.json output (default: <work-dir>/birds.json, use /dev/null to skip)",
+    )
+    parser.add_argument(
         "-D", "--delay",
         type=float,
         default=0.5,
@@ -205,14 +211,18 @@ def main() -> None:
     args = parser.parse_args()
 
     location = args.location
+    work_dir = Path(args.work_dir)
     if args.ephemeral:
-        work_dir = Path(tempfile.mkdtemp(prefix="avianki_"))
+        ephemeral_dir = work_dir / ".ephemeral"
+        ephemeral_dir.mkdir(parents=True, exist_ok=True)
+        media_dir = Path(args.media_dir) if args.media_dir else ephemeral_dir / "media"
     else:
-        work_dir = Path(args.work_dir)
-    media_dir = Path(args.media_dir) if args.media_dir else work_dir / "media"
+        ephemeral_dir = None
+        media_dir = Path(args.media_dir) if args.media_dir else work_dir / "media"
     media_dir.mkdir(parents=True, exist_ok=True)
 
-    log_file = Path(args.log_file) if args.log_file else work_dir / "avianki.log"
+    default_dir = work_dir / ".ephemeral" if args.ephemeral else work_dir
+    log_file = Path(args.log_file) if args.log_file else default_dir / "avianki.log"
     log_file.parent.mkdir(parents=True, exist_ok=True)
     fh = _setup_logging(str(log_file), args.verbose, args.quiet)
 
@@ -242,6 +252,7 @@ def main() -> None:
     deck_id = int(hashlib.md5(deck_seed.encode()).hexdigest()[:8], 16)
     deck = genanki.Deck(deck_id, deck_name)
     all_media: list[Path] = []
+    birds_data: list[dict] = []
     skipped = 0
 
     for slug in slugs:
@@ -266,6 +277,10 @@ def main() -> None:
 
         if not sci:
             sci = overview.get("sciName", "")
+
+        img_paths: list[Path] = []
+        call_paths: list[Path] = []
+        song_paths: list[Path] = []
 
         if not args.no_images:
             img_fields, img_paths = _get_images(
@@ -308,6 +323,19 @@ def main() -> None:
             guid=genanki.guid_for(deck_seed, name, "v1"),
         )
         deck.add_note(note)
+        birds_data.append({
+            "name": name,
+            "sci_name": sci,
+            "description": desc,
+            "images": [str(p.relative_to(work_dir)) for p in img_paths] if not args.no_images else [],
+            "call": str(call_paths[0].relative_to(work_dir)) if call_paths else None,
+            "song": str(song_paths[0].relative_to(work_dir)) if song_paths else None,
+        })
+
+    json_path = Path(args.json_file) if args.json_file else default_dir / "birds.json"
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path.write_text(json.dumps(birds_data, indent=2, ensure_ascii=False), encoding="utf-8")
+    log.info("    Birds data → %s", json_path)
 
     pkg = genanki.Package(deck)
     pkg.media_files = [str(p) for p in all_media]
@@ -315,7 +343,8 @@ def main() -> None:
     pkg.write_to_file(output)
 
     if args.ephemeral:
-        shutil.rmtree(work_dir, ignore_errors=True)
+        assert ephemeral_dir is not None
+        shutil.rmtree(ephemeral_dir, ignore_errors=True)
     elif args.no_cache:
         for p in all_media:
             p.unlink(missing_ok=True)

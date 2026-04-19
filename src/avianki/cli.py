@@ -138,7 +138,8 @@ def _get_images(
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 
-def main() -> None:
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse CLI args and apply AVIANKI_* env var fallbacks. CLI always wins."""
     parser = argparse.ArgumentParser(
         description="Build an Anki bird ID deck from allaboutbirds.org",
         epilog=(
@@ -150,7 +151,8 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "location", help="allaboutbirds.org URL, Google Place ID, or eBird region code"
+        "location", nargs="?", default=None,
+        help="allaboutbirds.org URL, Google Place ID, or eBird region code (or set AVIANKI_LOCATION)",
     )
     parser.add_argument(
         "-n", "--limit", type=int, default=None, help="Max number of species to include"
@@ -175,12 +177,12 @@ def main() -> None:
     parser.add_argument(
         "-D", "--delay",
         type=float,
-        default=0.5,
+        default=None,
         help="Seconds to wait between requests (default: 0.5)",
     )
     parser.add_argument(
         "-w", "--work-dir",
-        default=str(Path(tempfile.gettempdir()) / "avianki"),
+        default=None,
         help="Directory for cached media and logs (default: <tmp>/avianki)",
     )
     parser.add_argument(
@@ -208,8 +210,47 @@ def main() -> None:
     verbosity.add_argument(
         "-q", "--quiet", action="store_true", help="Only show warnings and errors"
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
+    # ── Env-var fallbacks (CLI flags always take precedence) ──────────────────
+    def _bool_env(key: str) -> bool:
+        return os.environ.get(key, "").lower() in ("1", "true", "yes")
+
+    if not args.location:
+        args.location = os.environ.get("AVIANKI_LOCATION") or ""
+    if not args.location:
+        parser.error("LOCATION is required — pass as argument or set AVIANKI_LOCATION in .env")
+    if args.limit is None and os.environ.get("AVIANKI_LIMIT"):
+        args.limit = int(os.environ["AVIANKI_LIMIT"])
+    if args.output is None:
+        args.output = os.environ.get("AVIANKI_OUTPUT")
+    if args.deck_name is None:
+        args.deck_name = os.environ.get("AVIANKI_DECK_NAME")
+    if args.delay is None:
+        args.delay = float(os.environ.get("AVIANKI_DELAY") or "0.5")
+    if args.work_dir is None:
+        args.work_dir = os.environ.get("AVIANKI_WORK_DIR") or str(Path(tempfile.gettempdir()) / "avianki")
+    if args.media_dir is None:
+        args.media_dir = os.environ.get("AVIANKI_MEDIA_DIR")
+    if args.json_file is None:
+        args.json_file = os.environ.get("AVIANKI_JSON_FILE")
+    if args.log_file is None:
+        args.log_file = os.environ.get("AVIANKI_LOG_FILE")
+    args.no_audio = args.no_audio or _bool_env("AVIANKI_NO_AUDIO")
+    args.no_images = args.no_images or _bool_env("AVIANKI_NO_IMAGES")
+    args.ephemeral = args.ephemeral or _bool_env("AVIANKI_EPHEMERAL")
+    args.no_cache = args.no_cache or _bool_env("AVIANKI_NO_CACHE")
+    if not args.verbose and not args.quiet:
+        if _bool_env("AVIANKI_VERBOSE"):
+            args.verbose = True
+        elif _bool_env("AVIANKI_QUIET"):
+            args.quiet = True
+
+    return args
+
+
+def main() -> None:
+    args = _parse_args()
     location = args.location
     work_dir = Path(args.work_dir)
     if args.ephemeral:

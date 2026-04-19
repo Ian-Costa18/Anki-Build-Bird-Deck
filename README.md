@@ -98,28 +98,34 @@ EBIRD_API_KEY=your_key_here
 
 ### Options
 
-| Flag              | Short | Description                                                                  |
-| ----------------- | ----- | ---------------------------------------------------------------------------- |
-| `--limit N`       | `-n`  | Cap the number of species included in the deck                               |
-| `--output FILE`   | `-o`  | Output `.apkg` path (default: auto-generated from location)                  |
-| `--deck-name NAME`| `-d`  | Override the deck name shown in Anki                                         |
-| `--no-audio`      | `-A`  | Skip downloading call and song audio                                         |
-| `--no-images`     | `-I`  | Skip downloading photos                                                      |
-| `--delay SECONDS` | `-D`  | Wait between requests in seconds (default: `0.5`)                            |
-| `--work-dir DIR`  | `-w`  | Directory for cached media, logs, and JSON (default: `<tmp>/avianki/`)       |
-| `--media-dir DIR` | `-m`  | Override media subdirectory (default: `<work-dir>/media/`)                   |
-| `--json-file FILE`| `-j`  | Path for `birds.json` output (default: `<work-dir>/birds.json`)              |
-| `--ephemeral`     | `-e`  | Run without persisting anything — see [Ephemeral mode](#ephemeral-mode)      |
-| `--no-cache`      | `-X`  | Skip cache lookup; delete downloaded media after packaging                   |
-| `--log-file FILE` | `-l`  | Log file path (default: `<work-dir>/avianki.log`)                            |
-| `--verbose`       | `-v`  | Show debug-level output in the console                                       |
-| `--quiet`         | `-q`  | Only show warnings and errors in the console                                 |
+Every option can also be set as an environment variable — useful for scripting or keeping a persistent configuration in `.env`. CLI flags always take precedence over env vars.
+
+| Flag               | Short | Env var              | Description                                                             |
+| ------------------ | ----- | -------------------- | ----------------------------------------------------------------------- |
+| `LOCATION`         |       | `AVIANKI_LOCATION`   | allaboutbirds.org URL, Google Place ID, or eBird region code            |
+| `--limit N`        | `-n`  | `AVIANKI_LIMIT`      | Cap the number of species included in the deck                          |
+| `--output FILE`    | `-o`  | `AVIANKI_OUTPUT`     | Output `.apkg` path (default: auto-generated from location)             |
+| `--deck-name NAME` | `-d`  | `AVIANKI_DECK_NAME`  | Override the deck name shown in Anki                                    |
+| `--no-audio`       | `-A`  | `AVIANKI_NO_AUDIO`   | Skip downloading call and song audio                                    |
+| `--no-images`      | `-I`  | `AVIANKI_NO_IMAGES`  | Skip downloading photos                                                 |
+| `--delay SECONDS`  | `-D`  | `AVIANKI_DELAY`      | Wait between requests in seconds (default: `0.5`)                       |
+| `--work-dir DIR`   | `-w`  | `AVIANKI_WORK_DIR`   | Directory for cached media, logs, and JSON (default: `<tmp>/avianki/`)  |
+| `--media-dir DIR`  | `-m`  | `AVIANKI_MEDIA_DIR`  | Override media subdirectory (default: `<work-dir>/media/`)              |
+| `--json-file FILE` | `-j`  | `AVIANKI_JSON_FILE`  | Path for `birds.json` output (default: `<work-dir>/birds.json`)         |
+| `--ephemeral`      | `-e`  | `AVIANKI_EPHEMERAL`  | Run without persisting anything — see [Ephemeral mode](#ephemeral-mode) |
+| `--no-cache`       | `-X`  | `AVIANKI_NO_CACHE`   | Skip cache lookup; delete downloaded media after packaging              |
+| `--log-file FILE`  | `-l`  | `AVIANKI_LOG_FILE`   | Log file path (default: `<work-dir>/avianki.log`)                       |
+| `--verbose`        | `-v`  | `AVIANKI_VERBOSE`    | Show debug-level output in the console                                  |
+| `--quiet`          | `-q`  | `AVIANKI_QUIET`      | Only show warnings and errors in the console                            |
+
+Boolean env vars (`AVIANKI_NO_AUDIO`, `AVIANKI_NO_IMAGES`, `AVIANKI_EPHEMERAL`, `AVIANKI_NO_CACHE`, `AVIANKI_VERBOSE`, `AVIANKI_QUIET`) are enabled by setting them to `1`, `true`, or `yes`. See `.env.example` for a ready-to-copy template.
 
 ### Examples
 
 ```bash
 # Your local birds, capped to 50 species
 uvx avianki "https://www.allaboutbirds.org/guide/browse/..." --limit 50
+AVIANKI_LIMIT=50 uvx avianki "https://www.allaboutbirds.org/guide/browse/..."
 
 # Custom output path and deck name
 uvx avianki "https://www.allaboutbirds.org/guide/browse/..." --output ~/Desktop/MyBirds.apkg --deck-name "My Birds"
@@ -129,11 +135,15 @@ uvx avianki "https://www.allaboutbirds.org/guide/browse/..." --no-audio
 
 # Be polite to the server
 uvx avianki "https://www.allaboutbirds.org/guide/browse/..." --delay 1.5
+
+# Fully configured via .env — run with no arguments
+# (set AVIANKI_LOCATION and other options in .env)
+uvx avianki
 ```
 
 ## Output
 
-An `.apkg` file is written to the current directory (e.g. `Birds_ChIJGzE9DS1l44kRoOhiASS_fHg.apkg` or `Birds_US-MA.apkg`). Import it into Anki via **File → Import**.
+An `.apkg` file is written to the current directory by default (e.g. `Birds_ChIJGzE9DS1l44kRoOhiASS_fHg.apkg` or `Birds_US-MA.apkg`). Import it into Anki via **File → Import**.
 
 Downloaded images and audio are cached in the system temp directory (`<tmp>/avianki/media/` by default, or the directory set by `--media-dir`) so re-runs skip already-fetched files. Re-running the same location only fetches new or missing media. The log is written to `<tmp>/avianki/avianki.log`.
 

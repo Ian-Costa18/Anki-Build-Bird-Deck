@@ -236,12 +236,12 @@ def main() -> None:
         raw = ebird.fetch_species(region, limit=args.limit)
         slugs = [allaboutbirds.species_slug(b["comName"]) for b in raw]
         names = {allaboutbirds.species_slug(b["comName"]): b for b in raw}
-        deck_name = args.deck_name or f"Birds – {region}"
+        deck_name = args.deck_name or f"AviAnki – {region}"
         deck_seed = region
     else:
         slugs = allaboutbirds.fetch_browse_species(location, limit=args.limit)
         names = {}  # resolved lazily from each overview page
-        deck_name = args.deck_name or "Birds – Local"
+        deck_name = args.deck_name or "AviAnki – Local Birds"
         place_id_match = re.search(r"/loc/([^/]+)", location)
         deck_seed = place_id_match.group(1) if place_id_match else location
 

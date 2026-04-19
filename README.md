@@ -6,7 +6,9 @@
 [![Stars](https://img.shields.io/github/stars/Ian-Costa18/avianki)](https://github.com/Ian-Costa18/avianki/stargazers)
 [![Ruff](https://img.shields.io/badge/linter-ruff-orange)](https://github.com/astral-sh/ruff)
 
-Learn to identify the birds in your area. Drop in your location and AviAnki builds a custom Anki deck — sorted by the species most likely to appear near you — pulling photos, calls, songs, and descriptions from [allaboutbirds.org](https://www.allaboutbirds.org).
+*Build Flashcards with Birds Near You*
+
+Drop in your location and AviAnki builds a custom Anki deck — sorted by the species most likely to appear near you — pulling photos, calls, songs, and descriptions from [allaboutbirds.org](https://www.allaboutbirds.org).
 
 Each species gets two card types:
 

@@ -66,21 +66,27 @@ def test_download_file_returns_false_on_exception(tmp_path):
 def test_trim_to_mp3_success(tmp_path):
     src = tmp_path / "src.mp3"
     dst = tmp_path / "dst.mp3"
-    mock_segment = MagicMock()
-    mock_segment.__getitem__ = MagicMock(return_value=mock_segment)
+    mock_result = MagicMock()
+    mock_result.returncode = 0
 
-    with patch("avianki.media.AudioSegment.from_file", return_value=mock_segment):
+    with patch("avianki.media.subprocess.run", return_value=mock_result) as mock_run:
         result = media.trim_to_mp3(src, dst)
 
     assert result is True
-    mock_segment.export.assert_called_once_with(dst, format="mp3")
+    mock_run.assert_called_once_with(
+        ["ffmpeg", "-y", "-i", str(src), "-t", "10", "-q:a", "2", str(dst)],
+        capture_output=True,
+    )
 
 
 def test_trim_to_mp3_failure(tmp_path):
     src = tmp_path / "src.mp3"
     dst = tmp_path / "dst.mp3"
+    mock_result = MagicMock()
+    mock_result.returncode = 1
+    mock_result.stderr = b"decode error"
 
-    with patch("avianki.media.AudioSegment.from_file", side_effect=Exception("decode error")):
+    with patch("avianki.media.subprocess.run", return_value=mock_result):
         result = media.trim_to_mp3(src, dst)
 
     assert result is False

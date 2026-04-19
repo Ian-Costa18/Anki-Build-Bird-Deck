@@ -29,6 +29,7 @@ uv run ty check src/
 uv run ruff check src/ tests/                  # lint
 uv run ty check src/                           # type check
 uv run pytest --integration --cov=avianki --cov-report=html  # run all tests, including the integration test, and coverage with HTML report
+uv run playwright install chromium --with-deps  # one-time: install browser for gen_examples
 uv run python scripts/gen_examples.py          # regenerate examples/ card screenshots and example-birds.json (needs network; media cached by integration test)
 ```
 

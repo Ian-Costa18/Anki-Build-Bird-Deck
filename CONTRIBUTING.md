@@ -30,17 +30,38 @@ uv run ruff check src/ tests/                  # lint
 uv run ty check src/                           # type check
 uv run pytest --integration --cov=avianki --cov-report=html  # run all tests, including the integration test, and coverage with HTML report
 uv run python scripts/gen_examples.py          # regenerate examples/ card screenshots and example-birds.json (needs network; media cached by integration test)
-# If publishing to PyPi:
-uv version --bump patch   # or minor / major
-uv build
-uv run dotenv run -- uv publish
 ```
 
 The integration test runs the full pipeline against allaboutbirds.org and verifies the output deck; it is skipped by default. Pass `--integration` to opt in.
 
 Use `--integration` only when you intentionally want a networked end-to-end run.
 
-`dotenv run --` injects `UV_PUBLISH_TOKEN` from `.env` into the environment so `uv publish` can authenticate without exposing the token in shell history. Add your PyPI token to `.env` as `UV_PUBLISH_TOKEN` to use it.
+## Publishing a release
+
+Publishing is automated via GitHub Actions and triggers on a version tag push. To cut a release:
+
+1. Bump the version in `pyproject.toml` (see the [Versioning](#versioning) section for which bump to use):
+
+   ```bash
+   uv version --bump patch   # or minor / major
+   ```
+
+2. Commit and push the version bump:
+
+   ```bash
+   git add pyproject.toml uv.lock
+   git commit -m "Bump version to $(uv version --short)"
+   git push
+   ```
+
+3. Tag the commit and push the tag:
+
+   ```bash
+   git tag v$(uv version --short)
+   git push origin v$(uv version --short)
+   ```
+
+Pushing the tag triggers the [publish workflow](../.github/workflows/publish.yml), which builds the package and publishes it to PyPI using OIDC trusted publishing — no token needed.
 
 ## Project structure
 

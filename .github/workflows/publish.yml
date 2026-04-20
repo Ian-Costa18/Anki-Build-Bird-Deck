@@ -5,7 +5,28 @@ on:
     tags: ["v*"]
 
 jobs:
+  sanity-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dev dependencies
+        run: uv sync --group dev
+
+      - name: Run sanity tests
+        run: uv run pytest
+
   update-examples:
+    needs: sanity-test
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -60,7 +81,7 @@ jobs:
           fi
 
   publish:
-    needs: update-examples
+    needs: [sanity-test, update-examples]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:

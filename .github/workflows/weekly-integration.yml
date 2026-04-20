@@ -1,0 +1,80 @@
+name: Weekly Integration Check
+
+on:
+  schedule:
+    - cron: "0 12 * * 5"
+  workflow_dispatch:
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dev dependencies
+        run: uv sync --group dev
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Run integration tests
+        run: uv run pytest --integration
+        env:
+          EBIRD_API_KEY: ${{ secrets.EBIRD_API_KEY }}
+
+  notify-on-failure:
+    needs: integration
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Open or update failure issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = "Weekly integration check is failing";
+            const labels = ["ci", "integration"];
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              "The scheduled weekly integration workflow failed.",
+              "",
+              `Workflow run: ${runUrl}`,
+              `Commit: ${context.sha}`,
+              "",
+              "Please investigate and close this issue after the failure is resolved."
+            ].join("\n");
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              labels: labels.join(","),
+              per_page: 100
+            });
+
+            const existing = issues.find(i => i.title === title);
+
+            if (existing) {
+              return;
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels
+              });
+            }

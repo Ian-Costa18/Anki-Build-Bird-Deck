@@ -28,9 +28,16 @@ uv run ty check src/
 ```bash
 uv run ruff check src/ tests/                  # lint
 uv run ty check src/                           # type check
-uv run playwright install chromium --with-deps  # one-time: install browser for gen_examples
-uv run pytest --integration --cov=avianki --cov-report=html  # run all tests, including the integration test, and coverage with HTML report
-uv run python scripts/gen_examples.py          # regenerate examples/ card screenshots and example-birds.json (needs network; media cached by integration test)
+uv run playwright install chromium --with-deps # one-time: install browser for gen_examples
+uv run pytest --integration --cov=avianki --cov-report=html # run all tests, including the integration test, and coverage with HTML report
+uv run python scripts/gen_examples.py # regenerate examples/ card screenshots and example-birds.json (needs network; media cached by integration test)
+# Test all Python versions we have in the classifiers
+uv python install 3.10 3.11 3.12 3.13 3.14 # one-time: install
+uv run --python 3.10 pytest
+uv run --python 3.11 pytest
+uv run --python 3.12 pytest
+uv run --python 3.13 pytest
+uv run --python 3.14 pytest
 ```
 
 The integration test runs the full pipeline against allaboutbirds.org and verifies the output deck; it is skipped by default. Pass `--integration` to opt in.

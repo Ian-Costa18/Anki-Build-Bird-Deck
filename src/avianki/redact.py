@@ -22,8 +22,15 @@ def redact_name(desc: str, com_name: str) -> str:
     seen: set[str] = set()
     for part in [com_name] + parts:
         for form in [part, _pluralize(part)]:
-            if form.lower() not in seen:
-                seen.add(form.lower())
+            if form not in seen:
+                seen.add(form)
+                candidates.append(form)
+
+    if parts:
+        last_part = parts[-1]
+        for form in [last_part.lower(), _pluralize(last_part).lower()]:
+            if form not in seen:
+                seen.add(form)
                 candidates.append(form)
 
     candidates.sort(key=len, reverse=True)

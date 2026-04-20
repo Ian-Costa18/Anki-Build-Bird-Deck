@@ -113,43 +113,46 @@ def test_redacted_present(name, desc):
 # Spot-checks for specific interesting redaction behaviour.
 # `present`: substring that must still appear in the result
 # `gone`:    substring that must be absent from the result
-@pytest.mark.parametrize("name,present,gone", [
-    (   # lowercase "blue" (color adjective) survives — only capitalised form is redacted
-        "Blue Jay",
-        "blue, white, and black plumage",
-        "Jay",
-    ),
-    (   # lowercase "hummingbird" survives — only capitalised form is redacted
-        "Ruby-throated Hummingbird",
-        "sole breeding hummingbird",
-        "Hummingbird",
-    ),
-    (   # "catty" is NOT redacted — word boundary stops partial matches
-        "Gray Catbird",
-        "catty mew",
-        "Catbird",
-    ),
-    (   # "cattails" is NOT redacted — word boundary stops partial matches
-        "Red-winged Blackbird",
-        "cattails",
-        "Blackbird",
-    ),
-    (   # hyphenated name at start of description → result opens with REDACTED
-        "Dark-eyed Junco",
-        REDACTED,
-        "Dark-eyed Junco",
-    ),
-    (   # lowercase "bald" (adjective) survives — only capitalised form is redacted
-        "Bald Eagle",
-        "aren\u2019t really bald,",
-        "Bald",
-    ),
-    (   # "Downies" (y → ies plural) is redacted
-        "Downy Woodpecker",
-        f"{REDACTED} and their larger lookalike",
-        "Downies",
-    ),
-])
+@pytest.mark.parametrize(
+    "name,present,gone",
+    [
+        (  # lowercase "blue" (color adjective) survives — only capitalised form is redacted
+            "Blue Jay",
+            "blue, white, and black plumage",
+            "Jay",
+        ),
+        (  # lowercase "hummingbird" is redacted too because it is the last word
+            "Ruby-throated Hummingbird",
+            "sole breeding",
+            "hummingbird",
+        ),
+        (  # "catty" is NOT redacted — word boundary stops partial matches
+            "Gray Catbird",
+            "catty mew",
+            "Catbird",
+        ),
+        (  # "cattails" is NOT redacted — word boundary stops partial matches
+            "Red-winged Blackbird",
+            "cattails",
+            "Blackbird",
+        ),
+        (  # hyphenated name at start of description → result opens with REDACTED
+            "Dark-eyed Junco",
+            REDACTED,
+            "Dark-eyed Junco",
+        ),
+        (  # lowercase "bald" (adjective) survives — only capitalised form is redacted
+            "Bald Eagle",
+            "aren\u2019t really bald,",
+            "Bald",
+        ),
+        (  # lowercase last word "woodpecker" is redacted
+            "Downy Woodpecker",
+            f"this black-and-white {REDACTED} is at home",
+            "woodpecker",
+        ),
+    ],
+)
 def test_spot_checks(name, present, gone):
     result = redact_name(BIRDS[name], name)
     assert present in result, f"{name!r}: {present!r} missing from result"
